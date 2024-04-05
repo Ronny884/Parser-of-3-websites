@@ -18,6 +18,11 @@ class ParseSantaElena(StandardRequests, StandardParser):
 
     @staticmethod
     def get_list_of_shop_location_urls(soup):
+        """
+        Блоки, содержащие информацию для разных локаций, находятся на разных url,
+        которые также необходимо спарсить, чтобы обработать случай добавления новой
+        локации и новых магазинов
+        """
         a = soup.find_all('a', attrs={'href': 'https://www.santaelena.com.co/tiendas-pasteleria/',
                                       'class': "elementor-item",
                                       'tabindex': "-1"})[0]
@@ -31,6 +36,9 @@ class ParseSantaElena(StandardRequests, StandardParser):
         return location_urls
 
     def find_all_names(self, urls_list):
+        """
+        Совокупный список названий для всех локаций
+        """
         all_names = []
         for url in urls_list:
             html = self.make_standard_get_request(url)
@@ -40,6 +48,9 @@ class ParseSantaElena(StandardRequests, StandardParser):
         return all_names
 
     def find_names_of_location(self, soup):
+        """
+        Находим названия магазинов для конкретной локации
+        """
         name = []
         h3_elements = soup.find_all('h3', attrs={'class': ['elementor-heading-title',
                                                            'elementor-size-default']})

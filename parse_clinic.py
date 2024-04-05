@@ -21,6 +21,10 @@ class ParseClinic(StandardRequests, StandardParser):
         return finish_dictionary
 
     def make_post_request(self):
+        """
+        В результате POST-запрса подгружается некоторый динамический контент,
+        которого не было после обычного GET-запроса
+        """
         data = {
             'action': 'jet_engine_ajax',
             'handler': 'get_listing',
