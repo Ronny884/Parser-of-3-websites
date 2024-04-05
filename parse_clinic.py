@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from based_classes import *
 
 
-class ParseClinic(StandardRequests, StandardParser, MakerJSON):
+class ParseClinic(StandardRequests, StandardParser):
     def __init__(self, base_url, changer):
         self.clinica_url = base_url + 'clinica/'
         self.changer = changer
@@ -20,8 +20,7 @@ class ParseClinic(StandardRequests, StandardParser, MakerJSON):
         latlon = self.make_list_of_latlon(soup_from_get, count_of_clinics=len(name))
         address, phones, working_hours = self.make_lists_of_address_phones_and_working_hours(soup_from_post)
         finish_dictionary = self.make_finish_clinic_dict(name, address, latlon, phones, working_hours)
-        json_data = self.make_json(finish_dictionary)
-        return json_data
+        return finish_dictionary
 
     def make_post_request(self):
         data = {

@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from based_classes import *
 
 
-class ParseSushi(StandardRequests, StandardParser, MakerJSON):
+class ParseSushi(StandardRequests, StandardParser):
     def __init__(self, base_url, changer):
         self.omsk_url_about = base_url + 'about'
         self.changer = changer
@@ -15,19 +15,9 @@ class ParseSushi(StandardRequests, StandardParser, MakerJSON):
         html = self.make_standard_get_request(self.omsk_url_about)
         soup = self.make_soup(html)
         phones = self.parse_phones(soup)
-        # address = self.parse_address(soup)
-
-    def make_response_for_html(self):
-        headers = {
-            'sec-ch-ua': '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
-            'Referer': 'https://omsk.yapdomik.ru/',
-            'sec-ch-ua-mobile': '?0',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-            'sec-ch-ua-platform': '"Windows"',
-        }
-        response = requests.get('https://storage.yandexcloud.net/softdel/assets/js/app.345448.js', headers=headers)
-        print(response.text)
-        return response.content
+        address = self.parse_address(soup)
+        finish_sushi_dict = self.make_finish_sushi_dict(address, phones)
+        return finish_sushi_dict
 
     @staticmethod
     def parse_phones(soup):
@@ -36,8 +26,29 @@ class ParseSushi(StandardRequests, StandardParser, MakerJSON):
         phones = [phones_element.text.replace(" ", "")]
         return phones
 
-    def parse_address(self, soup):
+    @staticmethod
+    def parse_address(soup):
         address = []
+        parent = soup.find('div', attrs={'class': 'site-footer__address-list'})
+        address_elements = parent.find_all('li')
+        for address_element in address_elements:
+            address.append(address_element.text)
+        return address
+
+    @staticmethod
+    def make_finish_sushi_dict(address, phones, name=None, latlon=None, working_hours=None):
+        count_of_sushi_houses = len(address)
+        data = {'Сайт 2': []}
+        for i in range(count_of_sushi_houses):
+            shop = {'name': name[i] if name is not None else 'Японский домик',
+                    'address': 'Омск, ' + address[i],
+                    'latlon': latlon[i] if latlon is not None else [],
+                    'phones': phones,
+                    'working_hours': working_hours[i] if working_hours is not None else []}
+            data['Сайт 2'].append(shop)
+        return data
+
+
 
 
 

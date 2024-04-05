@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from based_classes import *
 
 
-class ParseSantaElena(StandardRequests, StandardParser, MakerJSON):
+class ParseSantaElena(StandardRequests, StandardParser):
     def __init__(self, base_url, changer):
         self.base_url = base_url
         self.changer = changer
@@ -15,7 +15,9 @@ class ParseSantaElena(StandardRequests, StandardParser, MakerJSON):
         html = self.make_standard_get_request(self.base_url)
         soup = self.make_soup(html)
         list_of_shop_location_urls = self.get_list_of_shop_location_urls(soup)
-        print(list_of_shop_location_urls)
+        names = self.find_all_names(list_of_shop_location_urls)
+        finish_santa_elena_dict = self.make_finish_santa_elena_dict(names)
+        return finish_santa_elena_dict
 
     @staticmethod
     def get_list_of_shop_location_urls(soup):
@@ -30,4 +32,36 @@ class ParseSantaElena(StandardRequests, StandardParser, MakerJSON):
             location_url = child_of_li_element.attrs['href']
             location_urls.append(location_url)
         return location_urls
+
+    def find_all_names(self, urls_list):
+        all_names = []
+        for url in urls_list:
+            html = self.make_standard_get_request(url)
+            soup = self.make_soup(html)
+            names_of_location = self.find_names_of_location(soup)
+            all_names += names_of_location
+        return all_names
+
+    def find_names_of_location(self, soup):
+        name = []
+        h3_elements = soup.find_all('h3', attrs={'class': ['elementor-heading-title',
+                                                           'elementor-size-default']})
+        for h3_element in h3_elements:
+            name.append(self.changer.change_name_form(h3_element.text))
+        return name
+
+    @staticmethod
+    def make_finish_santa_elena_dict(name, address=None, latlon=None, phones=None, working_hours=None):
+        count_of_shops = len(name)
+        data = {'Сайт 3': []}
+        for i in range(count_of_shops):
+            shop = {'name': name[i],
+                    'address': address[i] if address is not None else '',
+                    'latlon': latlon[i] if latlon is not None else [],
+                    'phones': phones[i] if phones is not None else [],
+                    'working_hours': working_hours[i] if working_hours is not None else []}
+            data['Сайт 3'].append(shop)
+        return data
+
+
 

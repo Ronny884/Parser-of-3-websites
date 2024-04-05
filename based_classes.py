@@ -1,6 +1,3 @@
-import os
-import time
-import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -19,8 +16,4 @@ class StandardParser:
         return soup
 
 
-class MakerJSON:
-    @staticmethod
-    def make_json(data):
-        json_data = json.dumps(data, ensure_ascii=False)
-        return json_data
+

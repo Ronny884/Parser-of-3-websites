@@ -3,6 +3,13 @@ import re
 
 class FormChanger:
     @staticmethod
+    def change_name_form(name):
+        name = name.strip()
+        name = name.replace('  ', ' ')
+        name = name.replace('\n', ' ')
+        return name
+
+    @staticmethod
     def change_phone_form(phones):
         phone_pattern = re.compile(r"\(\d+\) *[0-9 \-]+")
         phone_list = phone_pattern.findall(phones)
