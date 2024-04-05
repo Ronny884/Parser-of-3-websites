@@ -1,6 +1,3 @@
-import os
-import time
-import json
 import requests
 from bs4 import BeautifulSoup
 from based_classes import *
