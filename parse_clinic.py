@@ -4,14 +4,14 @@ from bs4 import BeautifulSoup
 from based_classes import *
 
 
-class ParseClinic(StandardRequests, StandardParser):
+class ParseClinic(RequestsMaker, StandardParser):
     def __init__(self, base_url, changer):
         self.clinica_url = base_url + 'clinica/'
         self.changer = changer
 
     def __call__(self, *args, **kwargs):
         html_post = self.make_post_request()
-        html_get = self.make_standard_get_request(self.clinica_url)
+        html_get = self.make_standard_get_request(self.clinica_url).content
         soup_from_post = self.make_soup(html_post)
         soup_from_get = self.make_soup(html_get)
         name = self.make_list_of_clinic_names(soup_from_post)
@@ -35,9 +35,9 @@ class ParseClinic(StandardRequests, StandardParser):
             'listing_type': 'elementor',
             'isEditMode': 'false',
         }
-        response = requests.post(self.clinica_url, data=data)
-        res = response.json()
-        html = res['data']['html']
+        response = self.make_standard_post_request(self.clinica_url, data)
+        res_dict = response.json()
+        html = res_dict['data']['html']
         return html
 
     @staticmethod
@@ -56,7 +56,7 @@ class ParseClinic(StandardRequests, StandardParser):
             if 'Teléfono' in some_data:
                 phones.append(self.changer.change_phone_form(some_data))
             elif 'Horario' in some_data:
-                working_hours.append(self.changer.change_work_hours_form(some_data))
+                working_hours.append(self.changer.change_clinic_work_hours_form(some_data))
             else:
                 address.append(some_data)
         return address, phones, working_hours
@@ -69,7 +69,7 @@ class ParseClinic(StandardRequests, StandardParser):
         json_data = json.loads(str_data)
         for i in range(count_of_clinics):
             coards = json_data[i]['latLang']
-            latlon.append([coards['lat'], coards['lng']])
+            latlon.append([coards['lat'] + ' ' + coards['lng']])
         return latlon
 
     @staticmethod
